@@ -13,7 +13,10 @@ const app = express();
 // Middlewares
 app.use(cors()); // Libera o acesso ao frontend do Lucas
 app.use(express.json()); // Permite receber JSON no body das requisições
-
+app.get('/', (req, res) => {
+    res.send("🚀 Backend do Beanflow está online!");
+  });
+  
 // Rotas da aplicação
 app.use('/clientes', clientesRoutes);
 app.use('/cotacoes', cotacoesRoutes);
@@ -25,5 +28,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
-
-
