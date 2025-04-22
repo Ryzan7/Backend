@@ -4,9 +4,6 @@ const cors = require('cors');
 
 // Rotas
 const clientesRoutes = require('./routes/clientes');
-const cotacoesRoutes = require('./routes/cotacoes');
-const boletosRoutes = require('./routes/boletos');
-const tarefasRoutes = require('./routes/tarefas');
 
 const app = express();
 
@@ -19,12 +16,9 @@ app.get('/', (req, res) => {
   
 // Rotas da aplicação
 app.use('/clientes', clientesRoutes);
-app.use('/cotacoes', cotacoesRoutes);
-app.use('/boletos', boletosRoutes);
-app.use('/tarefas', tarefasRoutes);
 
 // Porta do servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
