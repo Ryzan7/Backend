@@ -14,6 +14,7 @@ router.get('/', async (req, res) => {
 
 // POST - Criar nova cotação
 router.post('/', async (req, res) => {
+  delete req.body.status; // Garante que status será controlado pela trigger
   const { etapa, observacoes, cliente_id, valor_total } = req.body;
 
   if (!cliente_id) {
@@ -37,6 +38,7 @@ router.post('/', async (req, res) => {
 
 // PUT - Atualizar uma cotação por ID
 router.put('/:id', async (req, res) => {
+  delete req.body.status;
   const { id } = req.params;
   const { etapa, observacoes, valor_total } = req.body;
 
