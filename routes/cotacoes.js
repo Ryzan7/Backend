@@ -14,6 +14,8 @@ router.get('/', async (req, res) => {
 
 // POST - Criar nova cotação
 router.post('/', async (req, res) => {
+  console.log("Requisição recebida:", req.body); // 👈 log do body
+  
   delete req.body.status; // Garante que status será controlado pela trigger
   const { etapa, observacoes, cliente_id, valor_total } = req.body;
 
@@ -32,6 +34,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json({ message: 'Cotação criada com sucesso!', cotacao: result.rows[0] });
   } catch (err) {
+    console.error("Erro ao criar cotação:", err); // 👈 log do erro
     res.status(500).json({ error: err.message });
   }
 });
