@@ -2,6 +2,11 @@ const express = require('express');
 const pool = require('../db');
 const router = express.Router();
 
+// Função para remover acentos e cedilha
+const normalizeText = (text) => {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ç/g, "c").replace(/Ç/g, "C");
+};
+
 // GET - Listar todas as cotações
 router.get('/', async (req, res) => {
   try {
@@ -14,14 +19,17 @@ router.get('/', async (req, res) => {
 
 // POST - Criar nova cotação
 router.post('/', async (req, res) => {
-  console.log("Requisição recebida:", req.body); // 👈 log do body
-  
-  delete req.body.status; // Garante que status será controlado pela trigger
-  const { etapa, observacoes, cliente_id, valor_total } = req.body;
+  console.log("Requisição recebida:", req.body);
+
+  delete req.body.status;
+  let { etapa, observacoes, cliente_id, valor_total } = req.body;
 
   if (!cliente_id) {
     return res.status(400).json({ error: 'O campo cliente_id é obrigatório' });
   }
+
+  // Normaliza a etapa, se houver
+  etapa = etapa ? normalizeText(etapa) : 'Realizar orcamento';
 
   try {
     const query = `
@@ -29,12 +37,12 @@ router.post('/', async (req, res) => {
       VALUES ($1, $2, $3, $4)
       RETURNING *;
     `;
-    const values = [etapa || 'Realizar orçamento', observacoes, cliente_id, valor_total];
+    const values = [etapa, observacoes, cliente_id, valor_total];
     const result = await pool.query(query, values);
 
-    res.status(201).json({ message: 'Cotação criada com sucesso!', cotacao: result.rows[0] });
+    res.status(201).json({ message: 'Cotacao criada com sucesso!', cotacao: result.rows[0] });
   } catch (err) {
-    console.error("Erro ao criar cotação:", err); // 👈 log do erro
+    console.error("Erro ao criar cotacao:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -43,7 +51,10 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   delete req.body.status;
   const { id } = req.params;
-  const { etapa, observacoes, valor_total } = req.body;
+  let { etapa, observacoes, valor_total } = req.body;
+
+  // Normaliza a etapa, se houver
+  etapa = etapa ? normalizeText(etapa) : null;
 
   try {
     const query = `
@@ -58,10 +69,10 @@ router.put('/:id', async (req, res) => {
     const result = await pool.query(query, values);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Cotação não encontrada' });
+      return res.status(404).json({ error: 'Cotacao nao encontrada' });
     }
 
-    res.json({ message: 'Cotação atualizada com sucesso!', cotacao: result.rows[0] });
+    res.json({ message: 'Cotacao atualizada com sucesso!', cotacao: result.rows[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -75,10 +86,10 @@ router.delete('/:id', async (req, res) => {
     const result = await pool.query('DELETE FROM cotacoes WHERE id = $1 RETURNING *;', [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Cotação não encontrada' });
+      return res.status(404).json({ error: 'Cotacao nao encontrada' });
     }
 
-    res.json({ message: 'Cotação deletada com sucesso!', cotacao: result.rows[0] });
+    res.json({ message: 'Cotacao deletada com sucesso!', cotacao: result.rows[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
