@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
   try {
     const query = `
       INSERT INTO boletos (data_criacao, vencimento, valor, pago, data_pagamento, cliente_id, cotacao_id)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *;
     `;
     const values = [data_criacao || new Date(), vencimento, valor, pago || false, data_pagamento, cliente_id, cotacao_id];

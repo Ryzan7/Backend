@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
   try {
     const query = `
       INSERT INTO cotacoes (etapa, observacoes, cliente_id, valor_total, data_criacao)
-      VALUES ($1, $2, $3, $4)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
     `;
     const values = [etapa, observacoes, cliente_id, valor_total, data_criacao || new Date()];
