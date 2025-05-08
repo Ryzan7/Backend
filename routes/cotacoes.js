@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
   console.log("Requisição recebida:", req.body);
 
   delete req.body.status;
-  let { etapa, observacoes, cliente_id, valor_total } = req.body;
+  let { etapa, observacoes, cliente_id, valor_total, data_criacao } = req.body;
 
   if (!cliente_id) {
     return res.status(400).json({ error: 'O campo cliente_id é obrigatório' });
@@ -33,11 +33,11 @@ router.post('/', async (req, res) => {
 
   try {
     const query = `
-      INSERT INTO cotacoes (etapa, observacoes, cliente_id, valor_total)
+      INSERT INTO cotacoes (etapa, observacoes, cliente_id, valor_total, data_criacao)
       VALUES ($1, $2, $3, $4)
       RETURNING *;
     `;
-    const values = [etapa, observacoes, cliente_id, valor_total];
+    const values = [etapa, observacoes, cliente_id, valor_total, data_criacao || new Date()];
     const result = await pool.query(query, values);
 
     res.status(201).json({ message: 'Cotacao criada com sucesso!', cotacao: result.rows[0] });

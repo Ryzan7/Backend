@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
 // POST - Criar novo boleto
 router.post('/', async (req, res) => {
-  const { vencimento, valor, pago, data_pagamento, cliente_id, cotacao_id } = req.body;
+  const { data_criacao, vencimento, valor, pago, data_pagamento, cliente_id, cotacao_id } = req.body;
 
   if (!vencimento || !valor || !cliente_id) {
     return res.status(400).json({ error: 'Vencimento, valor e cliente_id são obrigatórios' });
@@ -38,11 +38,11 @@ router.post('/', async (req, res) => {
 
   try {
     const query = `
-      INSERT INTO boletos (vencimento, valor, pago, data_pagamento, cliente_id, cotacao_id)
+      INSERT INTO boletos (data_criacao, vencimento, valor, pago, data_pagamento, cliente_id, cotacao_id)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
-    const values = [vencimento, valor, pago || false, data_pagamento, cliente_id, cotacao_id];
+    const values = [data_criacao || new Date(), vencimento, valor, pago || false, data_pagamento, cliente_id, cotacao_id];
     const result = await pool.query(query, values);
 
     res.status(201).json({ message: 'Boleto criado com sucesso!', boleto: result.rows[0] });
