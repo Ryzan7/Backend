@@ -31,13 +31,16 @@ router.post('/', async (req, res) => {
   // Normaliza a etapa, se houver
   etapa = etapa ? normalizeText(etapa) : 'Realizar orcamento';
 
+  // Verifica se data_criacao está preenchida corretamente
+  const dataCotacao = (data_criacao && data_criacao.trim() !== '') ? data_criacao : null;
+
   try {
     const query = `
       INSERT INTO cotacoes (etapa, observacoes, cliente_id, valor_total, data_criacao)
-      VALUES ($1, $2, $3, $4, $5)
+      VALUES ($1, $2, $3, $4, COALESCE($5, DEFAULT))
       RETURNING *;
     `;
-    const values = [etapa, observacoes, cliente_id, valor_total, data_criacao || new Date()];
+    const values = [etapa, observacoes, cliente_id, valor_total, dataCotacao];
     const result = await pool.query(query, values);
 
     res.status(201).json({ message: 'Cotacao criada com sucesso!', cotacao: result.rows[0] });
