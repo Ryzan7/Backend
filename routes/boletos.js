@@ -28,6 +28,38 @@ router.get('/', async (req, res) => {
     }
   });
 
+  // GET - Buscar boleto por ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(`
+      SELECT 
+        b.*,
+        CASE
+          WHEN pago THEN 'PAGO 🟩'
+          WHEN vencimento < CURRENT_DATE THEN 'VENCIDO 🟥'
+          WHEN vencimento = CURRENT_DATE THEN 'VENCE HOJE 🟥'
+          WHEN vencimento <= CURRENT_DATE + INTERVAL '3 days' THEN 'VENCE EM ATÉ 3 DIAS 🟧'
+          WHEN vencimento <= CURRENT_DATE + INTERVAL '7 days' THEN 'VENCE EM ATÉ 7 DIAS 🟨'
+          WHEN vencimento <= CURRENT_DATE + INTERVAL '14 days' THEN 'VENCE EM ATÉ 14 DIAS 🟩'
+          ELSE 'VENCE EM 15+ DIAS ⬜'
+        END AS status,
+        (vencimento - CURRENT_DATE) AS dias_para_vencimento
+      FROM boletos b
+      WHERE b.id = $1
+    `, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Boleto não encontrado' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST - Criar novo boleto
 router.post('/', async (req, res) => {
   const { data_criacao, vencimento, valor, pago, data_pagamento, cliente_id, cotacao_id } = req.body;
