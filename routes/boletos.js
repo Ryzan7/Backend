@@ -86,19 +86,20 @@ router.post('/', async (req, res) => {
 // PUT - Atualizar um boleto por ID
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { vencimento, valor, pago, data_pagamento } = req.body;
+  const { data_criacao, vencimento, valor, pago, data_pagamento } = req.body;
 
   try {
     const query = `
       UPDATE boletos
-      SET vencimento = COALESCE($1, vencimento),
-          valor = COALESCE($2, valor),
-          pago = COALESCE($3, pago),
-          data_pagamento = COALESCE($4, data_pagamento)
-      WHERE id = $5
+      SET data_criacao = COALESCE($1, data_criacao),
+          vencimento = COALESCE($2, vencimento),
+          valor = COALESCE($3, valor),
+          pago = COALESCE($4, pago),
+          data_pagamento = COALESCE($5, data_pagamento)
+      WHERE id = $6
       RETURNING *;
     `;
-    const values = [vencimento, valor, pago, data_pagamento, id];
+    const values = [data_criacao, vencimento, valor, pago, data_pagamento, id];
     const result = await pool.query(query, values);
 
     if (result.rows.length === 0) {
@@ -110,6 +111,7 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // DELETE - Deletar um boleto por ID
 router.delete('/:id', async (req, res) => {

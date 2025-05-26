@@ -54,9 +54,10 @@ router.post('/', async (req, res) => {
   try {
     const query = `
       INSERT INTO cotacoes (etapa, observacoes, cliente_id, valor_total, data_criacao)
-      VALUES ($1, $2, $3, $4, COALESCE($5, DEFAULT))
+      VALUES ($1, $2, $3, $4, COALESCE($5, current_date))
       RETURNING *;
     `;
+
     const values = [etapa, observacoes, cliente_id, valor_total, dataCotacao];
     const result = await pool.query(query, values);
 
@@ -71,7 +72,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   delete req.body.status;
   const { id } = req.params;
-  let { etapa, observacoes, valor_total } = req.body;
+  let { etapa, observacoes, valor_total, data_criacao } = req.body;
 
   // Normaliza a etapa, se houver
   etapa = etapa ? normalizeText(etapa) : null;
@@ -81,11 +82,12 @@ router.put('/:id', async (req, res) => {
       UPDATE cotacoes
       SET etapa = COALESCE($1, etapa),
           observacoes = COALESCE($2, observacoes),
-          valor_total = COALESCE($3, valor_total)
-      WHERE id = $4
+          valor_total = COALESCE($3, valor_total),
+          data_criacao = COALESCE($4, data_criacao)
+      WHERE id = $5
       RETURNING *;
     `;
-    const values = [etapa, observacoes, valor_total, id];
+    const values = [etapa, observacoes, valor_total, data_criacao, id];
     const result = await pool.query(query, values);
 
     if (result.rows.length === 0) {
@@ -97,6 +99,7 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // DELETE - Deletar uma cotação por ID
 router.delete('/:id', async (req, res) => {

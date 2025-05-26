@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET - Buscar uma tarefa por ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {                   
   const { id } = req.params;
 
   try {
@@ -68,5 +68,36 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// PUT - Atualizar uma tarefa por ID
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { titulo, descricao } = req.body;
+
+  if (!titulo || !descricao) {
+    return res.status(400).json({ error: 'Título e descrição são obrigatórios' });
+  }
+
+  try {
+    const query = `
+      UPDATE tarefas
+      SET titulo = $1,
+          descricao = $2
+      WHERE id = $3
+      RETURNING *;
+    `;
+    const values = [titulo, descricao, id];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Tarefa não encontrada' });
+    }
+
+    res.json({ message: 'Tarefa atualizada com sucesso!', tarefa: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 module.exports = router;
