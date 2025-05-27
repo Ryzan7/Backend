@@ -9,6 +9,8 @@ const clientesRoutes = require('./routes/clientes');
 const cotacoesRoutes = require('./routes/cotacoes');
 const boletosRoutes = require('./routes/boletos');
 const tarefasRoutes = require('./routes/tarefas');
+const loginRoutes = require('./routes/login');
+
 
 // Middlewares
 app.use(cors()); // Libera o acesso ao frontend
@@ -24,6 +26,7 @@ app.use('/clientes', clientesRoutes);
 app.use('/cotacoes', cotacoesRoutes);
 app.use('/boletos', boletosRoutes);
 app.use('/tarefas', tarefasRoutes);
+app.use('/login', loginRoutes);
 
 // Porta do servidor
 const PORT = process.env.PORT || 3000;
