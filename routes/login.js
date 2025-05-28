@@ -8,7 +8,7 @@ const admin = {
 };
 
 // Login
-router.post('/login', (req, res) => {
+router.post('/', (req, res) => {
   const { username, password } = req.body;
 
   if (username === admin.username && password === admin.password) {
