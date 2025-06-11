@@ -4,17 +4,16 @@ const cors = require('cors');
 
 const app = express();
 
-// Importação das rotas
+// Importação das rotas existentes
 const clientesRoutes = require('./routes/clientes');
 const cotacoesRoutes = require('./routes/cotacoes');
 const boletosRoutes = require('./routes/boletos');
 const tarefasRoutes = require('./routes/tarefas');
 const loginRoutes = require('./routes/login');
+const supersetTokenRoute = require("./supersetToken");
 
-
-// Middlewares
-app.use(cors()); // Libera o acesso ao frontend
-app.use(express.json()); // Permite receber JSON no body das requisições
+app.use(cors());
+app.use(express.json());
 
 // Rota raiz
 app.get('/', (req, res) => {
@@ -27,6 +26,7 @@ app.use('/cotacoes', cotacoesRoutes);
 app.use('/boletos', boletosRoutes);
 app.use('/tarefas', tarefasRoutes);
 app.use('/login', loginRoutes);
+app.use(supersetTokenRoute);
 
 // Porta do servidor
 const PORT = process.env.PORT || 3000;
